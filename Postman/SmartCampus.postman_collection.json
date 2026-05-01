@@ -1,0 +1,204 @@
+{
+  "info": {
+    "name": "Smart Campus API",
+    "description": "Demo collection for the 5COSC022W Smart Campus JAX-RS coursework. Requests are ordered to match the five graded parts of the brief.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "a3f1b1d8-5b6e-4a2e-9b15-smart-campus-api"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/api/v1" }
+  ],
+  "item": [
+    {
+      "name": "Part 1 - Setup & Discovery",
+      "item": [
+        {
+          "name": "1. GET /  - Discovery (HATEOAS)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/", "host": ["{{baseUrl}}"], "path": [""] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Part 2 - Room Management",
+      "item": [
+        {
+          "name": "2. GET /rooms - list all rooms",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/rooms", "host": ["{{baseUrl}}"], "path": ["rooms"] }
+          }
+        },
+        {
+          "name": "3. POST /rooms - create SCI-210 (expect 201)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"SCI-210\",\n  \"name\": \"Science Lab 210\",\n  \"capacity\": 25\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/rooms", "host": ["{{baseUrl}}"], "path": ["rooms"] }
+          }
+        },
+        {
+          "name": "4. GET /rooms/SCI-210 - fetch by id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/rooms/SCI-210", "host": ["{{baseUrl}}"], "path": ["rooms", "SCI-210"] }
+          }
+        },
+        {
+          "name": "5. DELETE /rooms/SCI-210 - empty room (expect 204)",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/rooms/SCI-210", "host": ["{{baseUrl}}"], "path": ["rooms", "SCI-210"] }
+          }
+        },
+        {
+          "name": "6. DELETE /rooms/LIB-301 - non-empty room (expect 409)",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/rooms/LIB-301", "host": ["{{baseUrl}}"], "path": ["rooms", "LIB-301"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Part 3 - Sensors & Filtering",
+      "item": [
+        {
+          "name": "7. GET /sensors - list all",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/sensors", "host": ["{{baseUrl}}"], "path": ["sensors"] }
+          }
+        },
+        {
+          "name": "8. GET /sensors?type=CO2 - filter via @QueryParam",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/sensors?type=CO2",
+              "host": ["{{baseUrl}}"],
+              "path": ["sensors"],
+              "query": [{ "key": "type", "value": "CO2" }]
+            }
+          }
+        },
+        {
+          "name": "9. POST /sensors - valid roomId (expect 201)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"TEMP-050\",\n  \"type\": \"Temperature\",\n  \"status\": \"ACTIVE\",\n  \"currentValue\": 21.0,\n  \"roomId\": \"LAB-105\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/sensors", "host": ["{{baseUrl}}"], "path": ["sensors"] }
+          }
+        },
+        {
+          "name": "10. POST /sensors - invalid roomId (expect 422)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"CO2\",\n  \"status\": \"ACTIVE\",\n  \"currentValue\": 400,\n  \"roomId\": \"GHOST-999\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/sensors", "host": ["{{baseUrl}}"], "path": ["sensors"] }
+          }
+        },
+        {
+          "name": "11. POST /sensors - wrong Content-Type (expect 415)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "text/plain" }],
+            "body": { "mode": "raw", "raw": "this is not json" },
+            "url": { "raw": "{{baseUrl}}/sensors", "host": ["{{baseUrl}}"], "path": ["sensors"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Part 4 - Sub-Resources (Readings)",
+      "item": [
+        {
+          "name": "12. GET /sensors/TEMP-001/readings - empty history",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/sensors/TEMP-001/readings",
+              "host": ["{{baseUrl}}"],
+              "path": ["sensors", "TEMP-001", "readings"]
+            }
+          }
+        },
+        {
+          "name": "13. POST /sensors/TEMP-001/readings - active sensor (expect 201)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"value\": 23.4\n}" },
+            "url": {
+              "raw": "{{baseUrl}}/sensors/TEMP-001/readings",
+              "host": ["{{baseUrl}}"],
+              "path": ["sensors", "TEMP-001", "readings"]
+            }
+          }
+        },
+        {
+          "name": "14. GET /sensors/TEMP-001 - confirm currentValue updated to 23.4",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/sensors/TEMP-001",
+              "host": ["{{baseUrl}}"],
+              "path": ["sensors", "TEMP-001"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Part 5 - Error Handling",
+      "item": [
+        {
+          "name": "15. POST reading to MAINTENANCE sensor (expect 403)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"value\": 1.0\n}" },
+            "url": {
+              "raw": "{{baseUrl}}/sensors/OCC-002/readings",
+              "host": ["{{baseUrl}}"],
+              "path": ["sensors", "OCC-002", "readings"]
+            }
+          }
+        },
+        {
+          "name": "16. GET /rooms/DOES-NOT-EXIST (expect 404)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/rooms/DOES-NOT-EXIST",
+              "host": ["{{baseUrl}}"],
+              "path": ["rooms", "DOES-NOT-EXIST"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
